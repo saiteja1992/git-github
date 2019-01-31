@@ -1,0 +1,47 @@
+for rebase concept how are u?
+https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html--Spring Boot externalized configuration
+https://docs.spring.io/spring-boot/docs/current/reference/html/_advanced_topics.html--Sppringboot documentation
+https://docs.spring.io/spring-boot/docs/current/reference/html/boot-documentation-about.html
+https://stackoverflow.com/tags/spring-boot----Spring Boot issues
+https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-build-systems.html#using-boot-maven--maven commands
+
+STRUCTURING:
+Locating the Main Application Class
+We generally recommend that you locate your main application class in a root package above other classes. The @SpringBootApplication annotation is often placed on your main class, and it implicitly defines a base “search package” for certain items. For example, if you are writing a JPA application, the package of the @SpringBootApplication annotated class is used to search for @Entity items. Using a root package also allows component scan to apply only on your project.
+
+[Tip]
+If you don’t want to use @SpringBootApplication, the @EnableAutoConfiguration and @ComponentScan annotations that it imports defines that behaviour so you can also use that instead.
+
+ Auto-configuration
+Spring Boot auto-configuration attempts to automatically configure your Spring application based on the jar dependencies that you have added. For example, if HSQLDB is on your classpath, and you have not manually configured any database connection beans, then Spring Boot auto-configures an in-memory database.
+
+You need to opt-in to auto-configuration by adding the @EnableAutoConfiguration or @SpringBootApplication annotations to one of your @Configuration classes.
+
+[Tip]
+You should only ever add one @SpringBootApplication or @EnableAutoConfiguration annotation. We generally recommend that you add one or the other to your primary @Configuration class only.
+
+Gradually Replacing Auto-configuration
+Auto-configuration is non-invasive. At any point, you can start to define your own configuration to replace specific parts of the auto-configuration. For example, if you add your own DataSource bean, the default embedded database support backs away.
+
+If you need to find out what auto-configuration is currently being applied, and why, start your application with the --debug switch. Doing so enables debug logs for a selection of core loggers and logs a conditions report to the console.
+
+Spring Beans and Dependency Injection
+You are free to use any of the standard Spring Framework techniques to define your beans and their injected dependencies. For simplicity, we often find that using @ComponentScan (to find your beans) and using @Autowired (to do constructor injection) works well.
+
+If you structure your code as suggested above (locating your application class in a root package), you can add @ComponentScan without any arguments. All of your application components (@Component, @Service, @Repository, @Controller etc.) are automatically registered as Spring Beans.
+
+The following example shows a @Service Bean that uses constructor injection to obtain a required RiskAssessor bean:
+If a bean has one constructor, you can omit the @Autowired,
+
+@SpringBootApplication annotation can be used to enable those three features, that is:
+
+@EnableAutoConfiguration: enable Spring Boot’s auto-configuration mechanism
+@ComponentScan: enable @Component scan on the package where the application is located (see the best practices)
+@Configuration: allow to register extra beans in the context or import additional configuration classes
+The @SpringBootApplication annotation is equivalent to using @Configuration, @EnableAutoConfiguration, and @ComponentScan with their default attributes, as shown in the following example
+
+SPRINGBOOT FEATURES:
+Using the ApplicationRunner or CommandLineRunner:
+If you need to run some specific code once the SpringApplication has started, you can implement the ApplicationRunner or CommandLineRunner interfaces. Both interfaces work in the same way and offer a single run method, which is called just before SpringApplication.run(…​) completes.
+
+The CommandLineRunner interfaces provides access to application arguments as a simple string array, whereas the ApplicationRunner uses the ApplicationArguments interface discussed earlier. The following example shows a CommandLineRunner with a run method:
