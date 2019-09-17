@@ -1,0 +1,615 @@
+Dependency Injection:
+sortALgorithm is the dependency
+Weblayer:Servlet JSP, spring MVC, MVC, angular, webservices, JSF....
+Business layer: spring: will get data from data layer
+Datalayer:hibernate, Ibatis, sprong data, JDBC
+
+Examples of dependency injection:
+Weblayer
+@Autowired
+Business layer
+
+Businss layer
+@Autowired
+Datalayer
+
+Datalayer
+@Aurowired
+JDBCTemplate
+
+Autowired indepth:
+By name
+@Autowitred
+private sortALgorithm BubblesortAlgorithmn
+
+By Type
+private sortAlgorithm sortalgoithm;
+@Qualifier('quick')
+-----------------------------
+Bean scope:
+Beans are createdd and life cycle is maintained
+
+Binarysearchimpl bs1=applicationcontext.getbean(Binary....);
+Binarysearchimpl bs2=applicationcontext.getbean(Binary....);
+if bs1 and bs2 returns same object , then singleton
+Prototype: new bean created every time
+request: one bean per http req
+session: one bean per http session
+by default singleton
+@Scope("prototype")
+good practice is 
+@Scope(configurablebeanfactory.scope_singleton)
+---------------------------------------------------------
+Componant scan:
+@Componant
+@ComponantScan("package")
+---------------------------
+Bean life cycle:
+IOC container
+step 1. autowire the dependencies
+@postConstruct: thsi method will be called after depedencies were called
+@Predestroy: method will be called before instances getting destroyed
+-------------------------------------------------------------------------
+CDI(Context and Dependency Injection)
+Java EE dependency Injection (JSR-330)
+@inject(@Autowired)
+@Named(@Component &@Qualifier)
+@singleton(Defines a scope of singleton)
+"Scope
+"qualifier
+JPA and Hibernate provides implements
+
+similarly CDI provides implements 
+----------------------------------------------
+Internationalization:
+--------------------------------------------------------------
+Project Development:
+Errors in maven
+go to users-> .m2--> delete repository folder
+then do maven update project
+
+
+Micro Services: yoy can cahnge the code of service without impacting other services. Tehy expose the API to the other services to consume via network calls.
+Monolithic applications: 
+Advantages of microservices
+Heterogeneous, Robust, Scalable,easy to deploy: can deploy single service with out impacting other one
+Four Layers and Classes:
+Data access layer(Independent layer)-->service layer(Business layer)-->integration layer(used by other applications to consume our services) Presentation layer
+six key classes:
+IS-A relation Ship: relationship within layer 
+Has-A relation ship: relationship between layers
+Model class: *.java
+DAL: *DAO--> DAOIMPL
+SL:   service
+PL controller
+
+Step 1: create model class(Entity) add @Generatedvalue to auto
+Step2: Create repository class
+Step3: Configure data source in application.properties
+----------------------------------------------
+Presentation:
+
+CreateLocation.jsp
+step1: add hyoerlink ViewALL-->DB-->hibernate-->displayLocations.jsp
+
+Delete workflow:
+update workflow
+ 
+Create application:
+Step1: Create model(Entity) class and mapping to database
+Step2: Create location Repository Interface implement crud repository<modelclass, ID>
+Step3: Configure The Data Source using application.properties
+spring.datasource.url=jdbc:mysql://localhost:3306/projectdb
+spring.datasource.username=root
+spring.datasource.password=test
+spring.jpa.show-sql=true
+Step4: Create Services Layer and create Interface LocationService and implemt them in LocationServiceImpl
+       Location saveLocation(Location location);
+
+	Location updateLocation(Location location);
+
+	void deleteLocation(Location location);
+
+	Location getLocationById(int id);
+
+	List<Location> getAllLocations();
+Step5: implement service using @Service and autowire LocationRepository
+
+@Override
+	public Location saveLocation(Location location) {
+		return repository.save(location);
+	}
+
+	@Override
+	public Location updateLocation(Location location) {
+		return repository.save(location);
+	}
+
+	@Override
+	public void deleteLocation(Location location) {
+		repository.delete(location);
+	}
+
+	@Override
+	public Location getLocationById(int id) {
+		return repository.findOne(id);
+	}
+
+	@Override
+	public List<Location> getAllLocations() {
+		return repository.findAll();//to return list repository class must implement JPARepository instead of Crudrepository
+	}
+
+	public LocationRepository getRepository() {
+		return repository;
+	}
+
+	public void setRepository(LocationRepository repository) {
+		this.repository = repository;
+	}
+
+Step6:Create the View for save location: createlocation.jsp
+jsps can bestored in web-inf
+Step7: Create a controller: LocationController : should return jsp location
+@RequestMapping("/showCreate")
+public String showCreate() {
+		return "createLocation";
+	}
+Step8: Configure prefix and suffix to let View resolver to work 
+
+spring.mvc.view.prefix=/WEB-INF/jsps/
+spring.mvc.view.suffix=.jsp
+
+Any issue with dependencies:
+Go to your maven repository directory For windows on below path C:\Users\YourUser\.m2\repository\org\springframework\boot Then delete spring-boot-autoconfigure folder.
+
+Now go to eclipse Right click on project -> Maven -> Update Project.
+
+This solved the problem for me.
+Flow:
+--> tomcat-->spring container-->Controller-->application.properties-->JSP
+Step9: Add this method in controller class which
+@RequestMapping("/saveLoc")
+	public String saveLocation(@ModelAttribute("location") Location location, ModelMap modelMap) {
+		Location locationSaved = service.saveLocation(location);
+		String msg = "Location saved with id: " + locationSaved.getId();
+		modelMap.addAttribute("msg", msg);
+
+Flow: submit details in the front end-->goes to the server-->spring container takes parameters and converts into model object--> Hands it to controller method--> invokes the service-->uses repository--> Hibernate--> database record
+in return we get the location response to the service layer-->service layer hands it back to the controller-->Internal jsp page
+Step10:
+Add ViewALL link in front end to get all details.
+<a href="displayLocations">View All</a>
+in controller class
+@RequestMapping("/displayLocations")
+	public String displayLocations(ModelMap modelMap) {
+		List<Location> locations = service.getAllLocations();
+		modelMap.addAttribute("locations", locations);
+		return "displayLocations";
+	}
+STEP11: Create Jsp display locations 
+STEP12: Add Create Locaion link
+Step13 : Add delete Request flow
+----------------------------------------------------------------------------------
+How to code Utility layer:
+performs special ops: like sending operations: all code whcih is common accross the code
+three steps:
+Add spring Email dependency: 
+EmailSender and EmailUtil interfaces
+code the utility layer
+configure spriing boot properties
+
+Step1: add email dependency:Spring-boot-starter-mail
+Step2: Create Util layer
+EmailUtil Class
+public interface EmailUtil {
+
+	void sendEmail(String toAddress, String subject, String body);
+
+}
+
+@Component
+public class EmailUtilImpl implements EmailUtil {
+
+	@Autowired
+	private JavaMailSender sender;
+
+	@Override
+	public void sendEmail(String toAddress, String subject, String body) {
+
+		MimeMessage message = sender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(message);
+		try {
+			helper.setTo(toAddress);
+			helper.setSubject(subject);
+			helper.setText(body);
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
+
+		sender.send(message);
+	}
+
+}
+step3: add details in properties file
+Step4:add emailUtil.sendEmail("springxyzabc@gmail.com", "Location Saved",
+				"Location Saved Successfully and about to return a response");
+-----------------------------------------------------------------------------------
+Flight reservation application:
+Step1:
+add jpa dependency, jasper and jstl dependency{to support JSP}
+1: Create a model class
+User.class
+{private String firstName;
+	private String lastName;
+	private String email;
+	private String password;}
+passenger.class
+{private String firstName;
+	private String lastName;
+	private String middleName;
+	private String email;
+	private String phone; }
+Flight class
+private String flightNumber;
+	private String operatingAirlines;
+	private String departureCity;
+	private String arrivalCity;
+	private Date dateOfDeparture;
+	private Timestamp estimatedDepartureTime;
+Reservation.Class	
+       private Boolean checkedIn;
+	private int numberOfBags;
+	private Passenger passenger;
+	private Flight flight;
+Mark with JPA annotations
+@Entity, @id, @GeneratedValue
+Define Relation ships:
+relation ship between Reservation and passenger
+In Reservation add @oneto one for passnger and flight 
+All should Entity AbstractEntity
+-----------------------------------------
+Create Repositories
+Create the interface: UserRepository extends Jpa repository<User, Long>
+similarly Flight repository, PassengerRepository, ReservationRepository
+--------------------------------------
+User Registration Usecase:
+UserController.class: Annotate with @Controller
+return "login/registerUser";
+ 
+Create login folder under jsps folder under web-inf under webapp folder
+-----------------------------------------------------------------------------
+UserController handles user registration and after registration  return login page using below method
+@RequestMapping(value = "/registerUser", method = RequestMethod.POST)
+	public String register(@ModelAttribute("user") User user) {
+		LOGGER.info("Inside register()" + user);
+		userRepository.save(user);
+		return "login/login";
+
+	}
+
+@RequestMapping(value = "/login", method = RequestMethod.POST)
+	public String login(@RequestParam("email") String email, @RequestParam("password") String password,
+			ModelMap modelMap) {
+		
+		LOGGER.info("Inside login() and the email is: " + email);
+		if (loginResponse) {
+			return "findFlights";
+		} else {
+			modelMap.addAttribute("msg", "Invalid user name or password .Please try again.");
+		}
+
+		return "login/login";
+If the login is successfull they should see Find flights jsp page
+-------------------------------------------------------------------------------------------
+Search Flights Requirements and Design
+from and to and 
+Flow:
+FindFlights.jsp--> Flight controller{find flights--> FlightRepository{FindFlights}}
+
+@RequestMapping("findFlights")
+	public String findFlights(@RequestParam("from") String from, @RequestParam("to") String to,
+			@RequestParam("departureDate") @DateTimeFormat(pattern = "MM-dd-yyyy") Date departureDate,
+			ModelMap modelMap) {
+
+		LOGGER.info("Inside findFlights() From:" + from + " TO:" + to + "Departure Date: " + departureDate);
+		List<Flight> flights = flightRepository.findFlights(from, to, departureDate);
+		modelMap.addAttribute("flights", flights);
+		LOGGER.info("Flight Found are:" + flights);
+		return "displayFlights";
+
+	}
+	
+Implement FindFlights method in FlightRepository Class
+returns Displayflights jsp page and we 'll select flights needed by using select link
+------------------------------------------------------------------------------------------
+Create the complete Reservation View:
+Airline information and payment details and submit.
+
+we need to send the flight id value to next controller, so we added hidden value<will not displayed to user>
+
+look the code to see the complete Reservation View
+
+-------------------------------------------------------------
+Create Reservation Requirements and Design:
+ReservationController
+
+
+completeReservation.jsp--> ReservationController{completeReservation method<Reservation Srvice{Bookflight method--> Reservation Repository}}>
+
+--------------------------------------
+
+public class ReservationRequest{
+flightID
+PassengerFN
+PassengerLN
+Email
+phone
+card
+card number
+expdate
+Securitycode and generate and setters and getters}
+-------------------------------
+Create ReservationService in services package:
+public interface ReservationService{
+public Reservation BookFlight(ReservationRequest req)}
+
+
+public class ReservationServiceImpl implements ReservationService{
+
+@Autowired
+FlightRepository flightrepository;
+
+@Autowired
+PassengerRepository passengerrepository;
+
+@Autowired
+ReservationRepository reservationrepository;
+
+public Reservation BookFlight(ReservationRequest req){
+
+Long flightid=request.getFlightId();
+Flight flight=flightRepository.findOne(flightid);//gets the fligth details from database
+
+Passenger p=new Passenger();
+p.setFirstname(request.getPassengerFirstName());
+Passenger savedPassenger=passengerrepository.save(p);
+..................................
+
+Reservation r=new Reservation();
+..........................................
+return savedReservation;
+}
+}
+-------------------------------------------
+@Controller
+public class ReservationController{
+
+@RequestMapping(value="/completeReservation", method=RequestMethod.POST)
+public String completeReservation(ReservationRequest r, ModelMap mp){
+Reservation re=reservationservice.bookFlight(r);
+mp.addAttribute("msg","reservation  and id is "+re.getId());
+return "reservationConfirmation";
+}
+----------------------
+Create a reservationConfirmation.jsp page
+------------------------------------------
+Flight reservation Workflow:
+annotate sevice class with @Service
+
+FindFlights.jsp->shows the FLights page with list of flights-->after selecting--> CompleteReservation.jsp--> Confirm-->reservationConfirmation.jsp 
+-------------------------------------------
+Create a home page which has register and login pages
+Create index.html
+new users to register and existing users to login
+
+Create showLoginpage method in UserController class
+------------------------------------------------------------------------
+Create Integration Layer:
+Integration Layer Requirements:
+Flight checkin page needs reservation derails from flight reservation application: This will happen using Restfull applications
+
+Reqirements:
+FindReservation(Long id)
+Updatereservation(UpdateReservationRequest request)
+-----------------------------------------------------------------------
+Create FindReservation REST service
+ReservationRestCOntroller
+@RestCintroller
+public class ReservationRestController{
+@Autowired
+ReservationRepository reservationRepository;
+@ReuestMapping("/reservations/{id}")
+public Reservation findReservation(@PathVariable("id") Long id){
+return reservationRepository.findOne(Id);
+
+}
+@RequestMapping("/reservations")
+public Reservation UpdateReservation(@RequestBodyReservationUpdateRequest req){
+Reservation r=reservationRepository.findOne(req.getId());
+r.setnoofbags(req.getnoofbags());...................
+return reservationRepository.save(r);
+}}
+-----------------------------------------------------------------
+Mark @CrossOrigin near @RestCOntroller for angular applications to communicate with restapplications as they  operate on different port numbers
+
+ReservationUpdateRequest
+id, Checkin, number of bags generate setters and getters
+-------------------------------------------------------------------------------
+Flight Checkin Spring boot project:
+Create Rest client and Model class
+
+public interface ReservationRestClient{
+public Reservation findReservation(Long id);
+public Reservation UpdateReservation();}
+
+
+
+copy all entity classes to this project
+@Componant
+public class ReservationRestClientImpl implements ReservationRestClient{
+
+
+public Reservation findReservation(Long id){
+RestTemplate rt=new RestTemplate();
+Reservation r=rt.getForObject(url, Reservation.class[type of object we are expecting]);
+
+return r;
+
+public Reservation UpdateReservation(ReservationUpdateRequest r){
+RestTemplate rt=new RestTemplate();
+Reservation re=rt.postForObject(url, Reservation.class[type of object we are expecting]);
+return re;
+}
+---------------------------------------------------------------
+CheckinController
+
+@Controller
+public class CheckInController{
+@Autowired
+ReservationRestClient restclient;
+
+@requestMapping("/showChedkin")
+public String showCheckin(){
+return "startCheckin";}
+
+
+
+}
+Create StartCheckin.jsp
+
+}
+Handle StartCheckin
+
+in 
+@Controller
+public class CheckInController{
+
+@requestMapping("/startCheckin")
+public String startCheckin(@RequestParam("reservationId") Long reservationId, ModelMap modelmap){
+Reservation reservation=restClient.findReservation(reservationId);
+modelmap.addAttribute("reservation", reservation)
+
+return "displayReservationDetails";}
+
+
+}
+Create displayReservationDetails.jsp page
+
+-----------------------------------------------------------
+Flow:
+Run both flightreservation application and FlightCheckin
+go to flight check in--> server.port=9090 in application.properties as they can't run on same port 8080
+
+StartCheckin-->retrieve all flight details--> enter the bags
+implement checkin method
+
+@requestMapping("/completeCheckin")
+public String completeCheckin(@RequestParam("reservationId") Long reservationId, @RequestParam("numberofbags") int numberofbags){
+
+ReservationUpdateRequest reservationUpdateRequest=new ReservationUpdateRequest();
+reservationUpdateRequest.setId(reservationId);
+reservationUpdateRequest.setCheckedIn(true);
+reservationUpdateRequest.setNumberofBags(numberofBags);
+restClient.updateReservation(reservationUpdateRequest);
+
+return "checkinConfirmation"}
+
+}
+
+Create checkinConfirmation.jsp page
+-----------------------------------------------------------
+Flow
+enter Id--> enter bags and click on Check in --> CheckIn Confirmed
+-------------------------------------------------------------------------
+Logging:
+Logger LOGGER=LoggerFactory.getLogger(ReservationServiceImpl.class);
+LOGGER.info("inside bookFlight()");
+three types of logging:
+SL4j
+LOG4j LogBAck
+
+LOG Levels: Sequential orderis 
+Error, Warn, INFO, Debug, Trace
+
+Configure and use loggers:
+Spring boot has logback dependencies
+
+UserController.Java
+provate static final  Logger LOGGER=loggerfactory.getLogger(UserController.class);
+
+in the methods 
+LOGGER.error("ERROR") ;
+.warn
+.info-------------
+By default log level in SL4j is info
+-------------------------------------------------------
+open application.properties
+logging.level.root=ERROR
+------------------------------------------
+UserCOntroller, FlightController, 
+LOGGER.ingo("inside methodname" +parametername);// generate toString() in the Entity class to avoid showing object hash code data
+------------------------------------------------------------------------------
+Spring Security:
+
+Add Spring Securities dependency in pom.xml
+
+in UserController.java
+@Autowired
+private BCruptPasswordEncoder encoder;
+
+
+
+Create ADD Flight View
+
+in Flight COntroller.java
+
+@RequestMapping("admin/showaddFlight")
+public String ShowAddFlight(){
+return "addFlight";
+}
+
+
+----------------------------------------------------------------------------------------
+Now we consume webservice from static Angular page.
+
+Angular is a single page application development framework. Angular makes its calls on back end
+
+componants is  a combination of typescript(which) and html and CSS
+Services to make external call to other applications to retieve data. makes restfull classes
+Directives: special instructions
+Binding
+Routing: to route from one ui to other.
+-----------------------------------------
+Installation:
+Angular quick start: google it.
+----------------------------------------
+PROJECT STRUCTURE:
+PACKAGE.JSON: there are all dependencies in it.
+Src folder: app folder (componants, services,......) prsent
+HTML: for view
+.ts: type script files
+.css
+.spec.ts: test class
+starting point of application: index.html:
+app.module.ts: cnfigure providers............
+-------------------------------------------------------------------------
+Patient Clinical Data Collection User stories
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
